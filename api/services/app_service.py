@@ -65,8 +65,26 @@ class AppService:
             else:
                 return None
 
+        # Handle sorting
+        sort_by = args.get("sort_by", "-created_at")
+        match sort_by:
+            case "created_at":
+                order_clause = App.created_at.asc()
+            case "-created_at":
+                order_clause = App.created_at.desc()
+            case "updated_at":
+                order_clause = App.updated_at.asc()
+            case "-updated_at":
+                order_clause = App.updated_at.desc()
+            case "name":
+                order_clause = App.name.asc()
+            case "-name":
+                order_clause = App.name.desc()
+            case _:
+                order_clause = App.created_at.desc()
+
         app_models = db.paginate(
-            sa.select(App).where(*filters).order_by(App.created_at.desc()),
+            sa.select(App).where(*filters).order_by(order_clause),
             page=args["page"],
             per_page=args["limit"],
             error_out=False,

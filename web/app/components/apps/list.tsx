@@ -17,6 +17,7 @@ import { parseAsString, useQueryState } from 'nuqs'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Input from '@/app/components/base/input'
+import Sort from '@/app/components/base/sort'
 import TabSliderNew from '@/app/components/base/tab-slider-new'
 import TagFilter from '@/app/components/base/tag-management/filter'
 import { useStore as useTagStore } from '@/app/components/base/tag-management/store'
@@ -51,10 +52,11 @@ const List = () => {
     'category',
     parseAsString.withDefault('all').withOptions({ history: 'push' }),
   )
-  const { query: { tagIDs = [], keywords = '', isCreatedByMe: queryIsCreatedByMe = false }, setQuery } = useAppsQueryState()
+  const { query: { tagIDs = [], keywords = '', isCreatedByMe: queryIsCreatedByMe = false, sortBy: querySortBy = '-created_at' }, setQuery } = useAppsQueryState()
   const [isCreatedByMe, setIsCreatedByMe] = useState(queryIsCreatedByMe)
   const [tagFilterValue, setTagFilterValue] = useState<string[]>(tagIDs)
   const [searchKeywords, setSearchKeywords] = useState(keywords)
+  const [sortBy, setSortBy] = useState(querySortBy)
   const newAppCardRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [showCreateFromDSLModal, setShowCreateFromDSLModal] = useState(false)
@@ -64,6 +66,9 @@ const List = () => {
   }, [setQuery])
   const setTagIDs = useCallback((tagIDs: string[]) => {
     setQuery(prev => ({ ...prev, tagIDs }))
+  }, [setQuery])
+  const setSortByValue = useCallback((sortBy: string) => {
+    setQuery(prev => ({ ...prev, sortBy }))
   }, [setQuery])
 
   const handleDSLFileDropped = useCallback((file: File) => {
@@ -83,6 +88,7 @@ const List = () => {
     name: searchKeywords,
     tag_ids: tagIDs,
     is_created_by_me: isCreatedByMe,
+    sort_by: sortBy,
     ...(activeTab !== 'all' ? { mode: activeTab as AppModeEnum } : {}),
   }
 
@@ -170,6 +176,11 @@ const List = () => {
     setQuery(prev => ({ ...prev, isCreatedByMe: newValue }))
   }, [isCreatedByMe, setQuery])
 
+  const handleSortChange = useCallback((value: string) => {
+    setSortBy(value)
+    setSortByValue(value)
+  }, [setSortByValue])
+
   const pages = data?.pages ?? []
   const hasAnyApp = (pages[0]?.total ?? 0) > 0
 
@@ -193,6 +204,16 @@ const List = () => {
               label={t('showMyCreatedAppsOnly', { ns: 'app' })}
               isChecked={isCreatedByMe}
               onChange={handleCreatedByMeChange}
+            />
+            <Sort
+              order={sortBy?.startsWith('-') ? '-' : ''}
+              value={sortBy?.replace('-', '') || 'created_at'}
+              items={[
+                { value: 'created_at', name: t('filter.sortBy.createdAt', { ns: 'app' }) },
+                { value: 'updated_at', name: t('filter.sortBy.updatedAt', { ns: 'app' }) },
+                { value: 'name', name: t('filter.sortBy.name', { ns: 'app' }) },
+              ]}
+              onSelect={handleSortChange}
             />
             <TagFilter type="app" value={tagFilterValue} onChange={handleTagsChange} />
             <Input

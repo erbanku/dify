@@ -28,6 +28,7 @@ type AppListParams = {
   mode?: AppModeEnum | 'all'
   tag_ids?: string[]
   is_created_by_me?: boolean
+  sort_by?: string
 }
 
 type DateRangeParams = {
@@ -43,6 +44,7 @@ const normalizeAppListParams = (params: AppListParams) => {
     mode,
     tag_ids,
     is_created_by_me,
+    sort_by,
   } = params
 
   return {
@@ -52,6 +54,7 @@ const normalizeAppListParams = (params: AppListParams) => {
     ...(mode && mode !== 'all' ? { mode } : {}),
     ...(tag_ids?.length ? { tag_ids } : {}),
     ...(is_created_by_me ? { is_created_by_me } : {}),
+    ...(sort_by ? { sort_by } : {}),
   }
 }
 

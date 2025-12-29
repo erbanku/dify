@@ -5,6 +5,7 @@ type AppsQuery = {
   tagIDs?: string[]
   keywords?: string
   isCreatedByMe?: boolean
+  sortBy?: string
 }
 
 const normalizeKeywords = (value: string | null) => value || undefined
@@ -15,6 +16,7 @@ function useAppsQueryState() {
       tagIDs: parseAsArrayOf(parseAsString, ';'),
       keywords: parseAsString,
       isCreatedByMe: parseAsBoolean,
+      sortBy: parseAsString,
     },
     {
       history: 'push',
@@ -25,7 +27,8 @@ function useAppsQueryState() {
     tagIDs: urlQuery.tagIDs ?? undefined,
     keywords: normalizeKeywords(urlQuery.keywords),
     isCreatedByMe: urlQuery.isCreatedByMe ?? false,
-  }), [urlQuery.isCreatedByMe, urlQuery.keywords, urlQuery.tagIDs])
+    sortBy: urlQuery.sortBy ?? '-created_at',
+  }), [urlQuery.isCreatedByMe, urlQuery.keywords, urlQuery.tagIDs, urlQuery.sortBy])
 
   const setQuery = useCallback((next: AppsQuery | ((prev: AppsQuery) => AppsQuery)) => {
     const buildPatch = (patch: AppsQuery) => {
@@ -36,6 +39,8 @@ function useAppsQueryState() {
         result.keywords = patch.keywords ? patch.keywords : null
       if ('isCreatedByMe' in patch)
         result.isCreatedByMe = patch.isCreatedByMe ? true : null
+      if ('sortBy' in patch)
+        result.sortBy = patch.sortBy && patch.sortBy !== '-created_at' ? patch.sortBy : null
       return result
     }
 
@@ -44,6 +49,7 @@ function useAppsQueryState() {
         tagIDs: prev.tagIDs ?? undefined,
         keywords: normalizeKeywords(prev.keywords),
         isCreatedByMe: prev.isCreatedByMe ?? false,
+        sortBy: prev.sortBy ?? '-created_at',
       })))
       return
     }

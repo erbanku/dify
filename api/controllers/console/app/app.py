@@ -50,6 +50,9 @@ class AppListQuery(BaseModel):
     name: str | None = Field(default=None, description="Filter by app name")
     tag_ids: list[str] | None = Field(default=None, description="Comma-separated tag IDs")
     is_created_by_me: bool | None = Field(default=None, description="Filter by creator")
+    sort_by: Literal["created_at", "-created_at", "updated_at", "-updated_at", "name", "-name"] = Field(
+        default="-created_at", description="Sort field and direction"
+    )
 
     @field_validator("tag_ids", mode="before")
     @classmethod
