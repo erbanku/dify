@@ -37,6 +37,7 @@ const mockQueryState = {
   tagIDs: [] as string[],
   keywords: '',
   isCreatedByMe: false,
+  sortBy: '-created_at',
 }
 vi.mock('./hooks/use-apps-query-state', () => ({
   __esModule: true,
